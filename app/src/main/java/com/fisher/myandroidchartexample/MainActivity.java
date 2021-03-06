@@ -1,12 +1,11 @@
 package com.fisher.myandroidchartexample;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
-import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
+
+import com.fisher.myandroidchartexample.doughunt_chart.ExDoughuntChartActivity;
 
 public class MainActivity extends BaseActivity {
 
