@@ -11,17 +11,21 @@ import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class DoughuntChartData {
     private static DoughuntChartData instance;
     private ArrayList<Integer> colorArray;
     private ArrayList<PieEntry> pieEntries;
+    private Map<Integer,Integer> gradientCombine;
 
     private static final String TAG = "DoughuntChartData";
 
    private DoughuntChartData (){
        colorArray = new ArrayList<>();
        pieEntries = new ArrayList<>();
+       gradientCombine = new HashMap<>();
    }
 
     public static DoughuntChartData getInstance() {
@@ -31,45 +35,23 @@ public class DoughuntChartData {
         return instance;
     }
 
-    public ArrayList<Integer> getColorArray() {
-        return colorArray;
-    }
-
 
     public void addColor(int colorId) {
         colorArray.add(AppMain.getApp().getColor(colorId));
     }
 
-    public void addColorByIndex(int index,int colorId){
-       if (index > colorArray.size()){
-           Log.e(TAG,"Color Array IndexOut Of Bounds!!");
-           return;
-       }
-        colorArray.add(index, AppMain.getApp().getColor(colorId));
-    }
-
-    public void setColorArray(@NonNull ArrayList<Integer> colorArray) {
-        this.colorArray = colorArray;
-    }
-
-    public ArrayList<PieEntry> getPieEntries() {
-        return pieEntries;
+    /**
+     * 設置要進行漸層的顏色
+     * @param colorId 初始顏色
+     * @param gradientId 漸層顏色
+     */
+    public void addGradientColor(int colorId,int gradientId) {
+        colorArray.add(AppMain.getApp().getColor(colorId));
+        gradientCombine.put(AppMain.getApp().getColor(colorId),AppMain.getApp().getColor(gradientId));
     }
 
     public void addPieEntrie(PieEntry pieEntry) {
         pieEntries.add(pieEntry);
-    }
-
-    public void addPieEntrieByIndex(int index,PieEntry pieEntry){
-        if (index > pieEntries.size()){
-            Log.e(TAG,"PieEntries IndexOut Of Bounds!!");
-            return;
-        }
-        pieEntries.add(index, pieEntry);
-    }
-
-    public void setPieEntries(@NonNull ArrayList<PieEntry> pieEntries) {
-        this.pieEntries = pieEntries;
     }
 
     /**
@@ -91,9 +73,14 @@ public class DoughuntChartData {
         return new PieData(pieDataSet);
     }
 
+    public Map<Integer, Integer> getGradientCombine() {
+        Log.d(TAG, "getGradientCombine: "+gradientCombine.size());
+        return gradientCombine;
+    }
 
     public void clearsDoughunt(){
         colorArray.clear();
         pieEntries.clear();
+        gradientCombine.clear();
     }
 }

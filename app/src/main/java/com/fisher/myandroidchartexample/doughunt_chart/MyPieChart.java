@@ -123,7 +123,7 @@ public class MyPieChart extends PieChart {
      *
      * @param gradientCombine  Key is Piedata's Color, Value is use gradient color hex
      */
-    public void setGradientColors(Map<Integer,String> gradientCombine) {
+    public void setGradientColors(Map<Integer,Integer> gradientCombine) {
         ((MyPieChartRenderer) mRenderer).setGradientColors(gradientCombine);
     }
 

@@ -11,7 +11,6 @@ import android.graphics.drawable.Drawable;
 import android.util.Log;
 
 import com.github.mikephil.charting.animation.ChartAnimator;
-import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
@@ -36,20 +35,6 @@ class MyPieChartRenderer extends PieChartRenderer {
 
     public MyPieChartRenderer(MyPieChart chart, ChartAnimator animator, ViewPortHandler viewPortHandler) {
         super(chart, animator, viewPortHandler);
-    }
-
-    @Override
-    protected float getSliceSpace(IPieDataSet dataSet) {
-
-        if (!dataSet.isAutomaticallyDisableSliceSpacingEnabled())
-            return dataSet.getSliceSpace();
-
-        float spaceSizeRatio = dataSet.getSliceSpace() / mViewPortHandler.getSmallestContentExtension();
-        float minValueRatio = dataSet.getYMin() / mChart.getData().getYValueSum() * 2;
-        Log.i("XXXX", "getSliceSpace: "+ spaceSizeRatio + " . " + minValueRatio + " . "+(spaceSizeRatio > minValueRatio));
-        float sliceSpace = spaceSizeRatio > minValueRatio ? 0f : dataSet.getSliceSpace();
-
-        return sliceSpace;
     }
 
     private Path mPathBuffer = new Path();
@@ -775,7 +760,7 @@ class MyPieChartRenderer extends PieChartRenderer {
             float[] positions = {0, sliceAngle / 360f};
             SweepGradient sweepGradient;
             if(drawRoundedSlices){
-                 sweepGradient = new SweepGradient(center.x-17, center.y-17, colors, positions);
+                 sweepGradient = new SweepGradient(center.x-80, center.y-80, colors, positions);
             }else {
                 sweepGradient = new SweepGradient(center.x, center.y, colors, positions);
             }
@@ -793,17 +778,23 @@ class MyPieChartRenderer extends PieChartRenderer {
         useGradient = enabled;
     }
 
-    Map<Integer,String> gradientCombine= new HashMap<>();
+    Map<Integer,Integer> gradientCombine= new HashMap<>();
 
-    public void setGradientColors(Map<Integer,String> gradientCombine) {
+    public void setGradientColors(Map<Integer,Integer> gradientCombine) {
         this.gradientCombine = gradientCombine;
     }
 
     public int getGradientColor(int color){
-        String colorHex = gradientCombine.get(color);
-        if (colorHex != null){
+        if(gradientCombine == null){
+            Log.d(TAG, "getGradientColor: gradientCombine = null");
+            return getGradientColor();
+        }
+
+        Integer gradientColor = gradientCombine.get(color);
+
+        if (gradientColor != null){
             Log.d(TAG, "getGradientColor: ");
-            return  Color.parseColor(gradientCombine.get(color));
+            return  gradientColor;
         }else {
             Log.d(TAG, "getGradientColor: null");
             return getGradientColor();
