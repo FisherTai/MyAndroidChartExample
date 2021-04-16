@@ -75,7 +75,7 @@ public class DoughuntChartData {
     /**
      * @return
      */
-    public PieData createPieData(){
+    public PieData createPieData( boolean notSlice){
 
         while (colorArray.size() < pieEntries.size()){
             addColor(R.color.black);
@@ -83,10 +83,10 @@ public class DoughuntChartData {
 
         PieDataSet pieDataSet = new PieDataSet(pieEntries, "");
         pieDataSet.setColors(colorArray);
-        pieDataSet.setSelectionShift(10f);
+        pieDataSet.setSelectionShift(0f);
         pieDataSet.setAutomaticallyDisableSliceSpacing(true);
-        pieDataSet.setSliceSpace(3f);
-        pieDataSet.setValueTextSize(15);
+        pieDataSet.setSliceSpace(notSlice ? 0f : 1f);
+        pieDataSet.setValueTextSize(0);
         pieDataSet.setValueTextColor(AppMain.getApp().getColor(R.color.white));
         return new PieData(pieDataSet);
     }

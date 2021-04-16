@@ -27,7 +27,7 @@ import java.util.ArrayList;
 
 public class ExDoughuntChartActivity extends BaseActivity {
     private static final String TAG = "ExDoughuntChartActivity";
-    PieChart doughuntChart;
+    MyPieChart doughuntChart;
     RecyclerView recyclerView;
     Button button;
 
@@ -89,7 +89,7 @@ public class ExDoughuntChartActivity extends BaseActivity {
         DoughuntChartData.getInstance().addPieEntrie(new PieEntry(10f, "空方"));
         DoughuntChartData.getInstance().addColor(R.color.red);
         DoughuntChartData.getInstance().addColor(R.color.green);
-        doughuntChart.setData(DoughuntChartData.getInstance().createPieData());
+//        doughuntChart.setData(DoughuntChartData.getInstance().createPieData());
         doughuntChart.setExtraOffsets(20, 5, 20, 5);//與四周的間距，類似從外側設置Padding
         doughuntChart.setEntryLabelTextSize(15);
         doughuntChart.setUsePercentValues(true);
@@ -130,17 +130,16 @@ public class ExDoughuntChartActivity extends BaseActivity {
     public class DoughuntChartListAdapter extends RecyclerView.Adapter<DoughuntChartListAdapter.ChartVH> {
 
         private Context mCtx;
-        ArrayList<String> itemList = new ArrayList<>();
+        ArrayList<Bean> itemList = new ArrayList<>();
 
         public DoughuntChartListAdapter(Context mCtx) {
             this.mCtx = mCtx;
-            itemList.add("XXXX");
-            itemList.add("TTTT");
-            itemList.add("QQQQ");
 
+            itemList.add(new Bean("XXXX",0f,100f));
+            itemList.add(new Bean("QQQQ",1f,98f));
         }
 
-        public void setItemList(ArrayList<String> itemList) {
+        public void setItemList(ArrayList<Bean> itemList) {
             this.itemList = itemList;
         }
 
@@ -153,18 +152,25 @@ public class ExDoughuntChartActivity extends BaseActivity {
 
         @Override
         public void onBindViewHolder(@NonNull ChartVH chartVH, int i) {
-            String item = itemList.get(i);
+            Bean item = itemList.get(i);
             DoughuntChartData.getInstance().clearsDoughunt();
-            chartVH.tvBull.setText(item);
-            chartVH.pieChart.setCenterText(item);
-            DoughuntChartData.getInstance().addPieEntrie(new PieEntry(40f, "多头"));
-            DoughuntChartData.getInstance().addPieEntrie(new PieEntry(10f, "空头"));
-            DoughuntChartData.getInstance().addColor(R.color.green);
-            DoughuntChartData.getInstance().addColor(R.color.red);
-            chartVH.pieChart.setData(DoughuntChartData.getInstance().createPieData());
+            chartVH.tvBull.setText(item.centerValue);
+            chartVH.pieChart.setCenterText(item.centerValue);
+                DoughuntChartData.getInstance().addPieEntrie(new PieEntry(item.buy, "多头"));
+                DoughuntChartData.getInstance().addColor(R.color.red);
+                DoughuntChartData.getInstance().addPieEntrie(new PieEntry(item.sell, "空头"));
+                DoughuntChartData.getInstance().addColor(R.color.green);
+
+            chartVH.pieChart.setData(DoughuntChartData.getInstance().createPieData(item.buy * item.sell == 0));
             chartVH.pieChart.setEntryLabelTextSize(15);
             chartVH.pieChart.setUsePercentValues(true);
             chartVH.pieChart.setDrawEntryLabels(false);
+            if(item.buy * item.sell <= 5){
+                chartVH.pieChart.setDrawRoundedSlices(false);
+            }else {
+                chartVH.pieChart.setDrawRoundedSlices(true);
+            }
+            chartVH.pieChart.setRotationEnabled(false);
 
             chartVH.pieChart.setCenterTextSize(15);
             chartVH.pieChart.setCenterTextColor(AppMain.getApp().getColor(R.color.black));
@@ -172,7 +178,7 @@ public class ExDoughuntChartActivity extends BaseActivity {
             chartVH.pieChart.setHoleColor(AppMain.getApp().getColor(R.color.transparent));
             chartVH.pieChart.setHoleRadius(70f);
             chartVH.pieChart.getDescription().setEnabled(false);
-
+            chartVH.pieChart.useGradient(true);
             Legend legend = chartVH.pieChart.getLegend();
             legend.setEnabled(false);
         }
@@ -184,7 +190,7 @@ public class ExDoughuntChartActivity extends BaseActivity {
 
 
         class ChartVH extends RecyclerView.ViewHolder {
-            PieChart pieChart;
+            MyPieChart pieChart;
             TextView tvBull;
 
             ChartVH(View itemView) {
@@ -198,13 +204,27 @@ public class ExDoughuntChartActivity extends BaseActivity {
     int intflag = 0;
     private void update(){
         Log.i(TAG, "update: ");
-        ArrayList<String> itemList = new ArrayList<>();
+        ArrayList<Bean> itemList = new ArrayList<>();
         for(int i = 0;i<7 ; i++){
-            intflag++;
-            itemList.add(intflag+"");
+            Bean bean = new Bean(intflag+++"",(float)(Math.random()*100),(float)(Math.random()*100));
+            itemList.add(bean);
         }
 
         mAdapter.setItemList(itemList);
         mAdapter.notifyDataSetChanged();
+    }
+
+
+    public class Bean{
+        String centerValue;
+
+        public Bean(String centerValue, float sell, float buy) {
+            this.centerValue = centerValue;
+            this.sell = sell;
+            this.buy = buy;
+        }
+
+        float sell;
+        float buy;
     }
 }
