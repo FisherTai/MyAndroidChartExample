@@ -10,5 +10,7 @@
     <color name="red">#F44336</color>
     <color name="green">#009688</color>
     <color name="blue">#2196F3</color>
+    <color name="coustom">#ff8161</color>
+    <color name="coustom2">#5695d5</color>
     <color name="transparent">#00FFFFFF</color>
 </resources>

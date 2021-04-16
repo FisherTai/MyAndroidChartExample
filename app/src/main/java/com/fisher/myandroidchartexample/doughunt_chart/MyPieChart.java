@@ -20,6 +20,7 @@ import com.github.mikephil.charting.utils.MPPointF;
 import com.github.mikephil.charting.utils.Utils;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * View that represents a pie chart. Draws cake like slices.
@@ -116,6 +117,14 @@ public class MyPieChart extends PieChart {
 
     public void useGradient(boolean enabled) {
         ((MyPieChartRenderer) mRenderer).useGradient(enabled);
+    }
+
+    /**
+     *
+     * @param gradientCombine  Key is Piedata's Color, Value is use gradient color hex
+     */
+    public void setGradientColors(Map<Integer,String> gradientCombine) {
+        ((MyPieChartRenderer) mRenderer).setGradientColors(gradientCombine);
     }
 
     @Override

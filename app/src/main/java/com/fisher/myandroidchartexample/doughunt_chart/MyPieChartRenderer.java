@@ -25,9 +25,14 @@ import com.github.mikephil.charting.utils.MPPointF;
 import com.github.mikephil.charting.utils.Utils;
 import com.github.mikephil.charting.utils.ViewPortHandler;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 class MyPieChartRenderer extends PieChartRenderer {
+    int drawCount1 = 0;
+    int drawCount2 = 0;
+    private static final String TAG = "MyPieChartRenderer";
 
     public MyPieChartRenderer(MyPieChart chart, ChartAnimator animator, ViewPortHandler viewPortHandler) {
         super(chart, animator, viewPortHandler);
@@ -133,12 +138,10 @@ class MyPieChartRenderer extends PieChartRenderer {
             } else {
 
                 if (drawRoundedSlices) {
-                    mPathBuffer.arcTo(roundedCircleBox, startAngleOuter + 180, -180);
-//                    mBitmapCanvas.drawPath(mPathBuffer, mRenderPaint);
-//                    mRenderPaint.setColor(getGradientColor());
-//                    mPathBuffer.arcTo(roundedCircleBox, startAngleOuter - 180, +180);
-//                    mBitmapCanvas.drawPath(mPathBuffer, mRenderPaint);
-//                    mRenderPaint.setColor(dataSet.getColor(j));
+                    drawCount1++;
+                    Log.d(TAG, "drawDataSet: drawRoundedSlices " +drawCount1);
+//                    mPathBuffer.arcTo(roundedCircleBox, startAngleOuter + 180, -180);
+                    mPathBuffer.arcTo(roundedCircleBox, startAngleOuter - 180, +180);
                 }
 
                 mPathBuffer.arcTo(
@@ -193,7 +196,9 @@ class MyPieChartRenderer extends PieChartRenderer {
                         float x = center.x + (radius - roundedRadius) * (float) Math.cos(endAngleInner * Utils.FDEG2RAD);
                         float y = center.y + (radius - roundedRadius) * (float) Math.sin(endAngleInner * Utils.FDEG2RAD);
                         roundedCircleBox.set(x - roundedRadius, y - roundedRadius, x + roundedRadius, y + roundedRadius);
-                        mPathBuffer.arcTo(roundedCircleBox, endAngleInner, 180);
+                        drawCount2++;
+                        Log.d(TAG, "drawDataSet2: drawRoundedSlices "+drawCount2);
+                        mPathBuffer.arcTo(roundedCircleBox, endAngleInner, 0);
                     } else {
                         mPathBuffer.lineTo(
                                 center.x + innerRadius * (float) Math.cos(endAngleInner * Utils.FDEG2RAD),
@@ -242,7 +247,7 @@ class MyPieChartRenderer extends PieChartRenderer {
             }
 
             mPathBuffer.close();
-            setGradient(startAngleOuter, center, sliceAngle);
+            setGradient(startAngleOuter, center, sliceAngle,drawRoundedSlices);
             mBitmapCanvas.drawPath(mPathBuffer, mRenderPaint);
 
             angle += sliceAngle * phaseX;
@@ -690,7 +695,7 @@ class MyPieChartRenderer extends PieChartRenderer {
             }
 
             mPathBuffer.close();
-            setGradient(startAngleOuter, center, sliceAngle);
+            setGradient(startAngleOuter, center, sliceAngle,false);
             mBitmapCanvas.drawPath(mPathBuffer, mRenderPaint);
         }
 
@@ -752,24 +757,28 @@ class MyPieChartRenderer extends PieChartRenderer {
         int redMask = 0xFF0000, greenMask = 0xFF00, blueMask = 0xFF;
         int firstColor = mRenderPaint.getColor();
 
-        int blue = (int) Math.round((firstColor & blueMask) * 0.75);
-        int red = (int) Math.round(((firstColor & redMask) >> 16) * 0.75);
-        int green = (int) Math.round(((firstColor & greenMask) >> 8) * 0.75);
-
+        int blue = (int) Math.round((firstColor & blueMask) * 0.85);
+        int red = (int) Math.round(((firstColor & redMask) >> 16) * 0.85);
+        int green = (int) Math.round(((firstColor & greenMask) >> 8) * 0.85);
+//        return Color.parseColor("#ff3b0a");
         return Color.rgb(red, green, blue);
-
     }
 
-    private void setGradient(float startAngleOuter, MPPointF center, float sliceAngle) {
+    private void setGradient(float startAngleOuter, MPPointF center, float sliceAngle , boolean drawRoundedSlices) {
         if(useGradient) {
-
+            Log.d(TAG, "setGradient: ");
             int[] colors = new int[2];
             colors[0] = mRenderPaint.getColor();
-            colors[1] = getGradientColor();
+            colors[1] = getGradientColor(colors[0]);
 
             //make a sweep gradient from firstColor to secondColor, sliceAngle degrees
             float[] positions = {0, sliceAngle / 360f};
-            SweepGradient sweepGradient = new SweepGradient(center.x, center.y, colors, positions);
+            SweepGradient sweepGradient;
+            if(drawRoundedSlices){
+                 sweepGradient = new SweepGradient(center.x-17, center.y-17, colors, positions);
+            }else {
+                sweepGradient = new SweepGradient(center.x, center.y, colors, positions);
+            }
 
             //rotate gradient so it doesn't start or the right side (0 degrees)
             Matrix gradientMatrix = new Matrix();
@@ -782,5 +791,22 @@ class MyPieChartRenderer extends PieChartRenderer {
 
     public void useGradient(boolean enabled) {
         useGradient = enabled;
+    }
+
+    Map<Integer,String> gradientCombine= new HashMap<>();
+
+    public void setGradientColors(Map<Integer,String> gradientCombine) {
+        this.gradientCombine = gradientCombine;
+    }
+
+    public int getGradientColor(int color){
+        String colorHex = gradientCombine.get(color);
+        if (colorHex != null){
+            Log.d(TAG, "getGradientColor: ");
+            return  Color.parseColor(gradientCombine.get(color));
+        }else {
+            Log.d(TAG, "getGradientColor: null");
+            return getGradientColor();
+        }
     }
 }
